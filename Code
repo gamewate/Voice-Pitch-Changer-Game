@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Pitch Changer Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="mic-icon">🎤</div>
+    <button id="pitchButton">Change Pitch</button>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
+/* style.css */
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #282c34;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  text-align: center;
+}
+
+.mic-icon {
+  font-size: 5em;
+  margin-bottom: 20px;
+}
+
+#pitchButton {
+  font-size: 1.2em;
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #61dafb;
+  border: none;
+  border-radius: 5px;
+}// script.js
+
+// Setup Web Audio Context and Pitch Changing Nodes
+let audioContext;
+let pitchShifter;
+let mediaStreamSource;
+let isPitchShifted = false;
+let pitchFactor = 1.0;
+
+document.getElementById('pitchButton').addEventListener('click', changePitch);
+
+// Function to initialize audio context and connect nodes
+async function initializeAudio() {
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  // Get user microphone
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaStreamSource = audioContext.createMediaStreamSource(stream);
+
+  // Create a pitch shifting node with Web Audio API
+  pitchShifter = audioContext.createGain();
+
+  // Connect the microphone input to the pitch shifter
+  mediaStreamSource.connect(pitchShifter);
+  pitchShifter.connect(audioContext.destination);
+}
+
+// Function to toggle pitch shift
+function changePitch() {
+  isPitchShifted = !isPitchShifted;
+
+  // Increase or decrease pitch by changing the playback rate
+  pitchFactor = isPitchShifted ? 1.5 : 1.0; // 1.5 for higher pitch, 1.0 for normal
+  pitchShifter.gain.value = pitchFactor;
+}
+
+// Initialize audio on load
+initializeAudio();
