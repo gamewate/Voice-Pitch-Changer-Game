@@ -1,83 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voice Pitch Changer Game</title>
-  <link rel="stylesheet" href="style.css">
+    <title>CEO of Alarm Clock Company</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f4f4f9;
+        }
+        #game-container {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 500px;
+            background: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="mic-icon">🎤</div>
-    <button id="pitchButton">Change Pitch</button>
-  </div>
-  
-  <script src="script.js"></script>
+    <div id="game-container">
+        <h1>CEO of Alarm Clock Co.</h1>
+        <p>Welcome to your new role! Make decisions to grow your company.</p>
+        <div id="game">
+            <div id="menu">
+                <p>You start with $10,000. Choose your first action:</p>
+                <button onclick="launchNewFeature()">Launch New Feature</button>
+                <button onclick="increaseProduction()">Increase Production</button>
+                <button onclick="runMarketingCampaign()">Run Marketing Campaign</button>
+            </div>
+            <div id="outcome" class="hidden">
+                <p id="outcome-message"></p>
+                <button onclick="restartGame()">Restart Game</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let money = 10000;
+
+        function launchNewFeature() {
+            let cost = 3000;
+            if (money >= cost) {
+                money -= cost;
+                showOutcome("You launched a new feature! Customers love it. Revenue increases by $5,000.", 5000);
+            } else {
+                showOutcome("Not enough funds to launch a new feature. Game over.", 0);
+            }
+        }
+
+        function increaseProduction() {
+            let cost = 5000;
+            if (money >= cost) {
+                money -= cost;
+                showOutcome("Production increased! You can sell 50% more units. Revenue increases by $7,000.", 7000);
+            } else {
+                showOutcome("Not enough funds to increase production. Game over.", 0);
+            }
+        }
+
+        function runMarketingCampaign() {
+            let cost = 2000;
+            if (money >= cost) {
+                money -= cost;
+                showOutcome("Marketing was a success! Your brand is trending. Revenue increases by $4,000.", 4000);
+            } else {
+                showOutcome("Not enough funds for marketing. Game over.", 0);
+            }
+        }
+
+        function showOutcome(message, revenue) {
+            money += revenue;
+            document.getElementById("menu").classList.add("hidden");
+            document.getElementById("outcome").classList.remove("hidden");
+            document.getElementById("outcome-message").textContent = message + ` You now have $${money}.`;
+        }
+
+        function restartGame() {
+            money = 10000;
+            document.getElementById("menu").classList.remove("hidden");
+            document.getElementById("outcome").classList.add("hidden");
+        }
+    </script>
 </body>
 </html>
-/* style.css */
-
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #282c34;
-  color: white;
-  font-family: Arial, sans-serif;
-}
-
-.container {
-  text-align: center;
-}
-
-.mic-icon {
-  font-size: 5em;
-  margin-bottom: 20px;
-}
-
-#pitchButton {
-  font-size: 1.2em;
-  padding: 10px 20px;
-  cursor: pointer;
-  background-color: #61dafb;
-  border: none;
-  border-radius: 5px;
-}// script.js
-
-// Setup Web Audio Context and Pitch Changing Nodes
-let audioContext;
-let pitchShifter;
-let mediaStreamSource;
-let isPitchShifted = false;
-let pitchFactor = 1.0;
-
-document.getElementById('pitchButton').addEventListener('click', changePitch);
-
-// Function to initialize audio context and connect nodes
-async function initializeAudio() {
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-  // Get user microphone
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  mediaStreamSource = audioContext.createMediaStreamSource(stream);
-
-  // Create a pitch shifting node with Web Audio API
-  pitchShifter = audioContext.createGain();
-
-  // Connect the microphone input to the pitch shifter
-  mediaStreamSource.connect(pitchShifter);
-  pitchShifter.connect(audioContext.destination);
-}
-
-// Function to toggle pitch shift
-function changePitch() {
-  isPitchShifted = !isPitchShifted;
-
-  // Increase or decrease pitch by changing the playback rate
-  pitchFactor = isPitchShifted ? 1.5 : 1.0; // 1.5 for higher pitch, 1.0 for normal
-  pitchShifter.gain.value = pitchFactor;
-}
-
-// Initialize audio on load
-initializeAudio();
